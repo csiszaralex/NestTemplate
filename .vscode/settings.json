@@ -1,0 +1,13 @@
+{
+  "files.exclude": {
+    "**/.git": true,
+    "node_modules": true,
+    "yarn.lock": true,
+    "dist": true,
+    ".vscode": true,
+    "tsconfig*.json": true,
+    ".prettierrc": true,
+    ".eslintrc.js": true,
+    "nest-cli.json": true
+  }
+}
