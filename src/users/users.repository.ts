@@ -3,32 +3,33 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import {
   ConflictException,
-  ForbiddenException,
   InternalServerErrorException,
   Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Role } from './enums/Roles.enum';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
   private logger = new Logger('UserRepository');
 
-  async createUser(name, email, password): Promise<void> {
+  async createUser(name, email, password, phoneNumber, fullName): Promise<void> {
     const salt = await bcrypt.genSalt();
     const user = new User();
     user.email = email;
     user.name = name;
     user.salt = salt;
-    user.publicRole = 1;
+    user.role = 1;
+    user.phoneNumber = phoneNumber;
+    user.fullName = fullName;
     user.password = await bcrypt.hash(password, salt);
 
     try {
       await user.save();
       this.logger.verbose(`User ${name} has successfully registered`);
     } catch (error) {
-      if (error.code === 'ER_DUP_ENTRY') throw new ConflictException('Email already exists');
+      if (error.code === 'ER_DUP_ENTRY')
+        throw new ConflictException('Email or phonenumber already exists');
       else {
         this.logger.warn(error);
         throw new InternalServerErrorException();
@@ -51,17 +52,17 @@ export class UserRepository extends Repository<User> {
     return user;
   }
 
-  async setRole(role: Role, id: number, uid: number, uRole: Role) {
-    const user = await User.findOne(id);
-    if (!user) throw new NotFoundException(`User with id ${id} not found`);
-    if (role < uRole) throw new ForbiddenException();
-    user.publicRole = role;
-    try {
-      user.save();
-      this.logger.verbose(`User ${uid} chenged ${id}-s role to ${role}`);
-    } catch (error) {
-      this.logger.warn(error);
-      throw new InternalServerErrorException();
-    }
-  }
+  // async setRole(role: Role, id: number, uid: number, uRole: Role) {
+  //   const user = await User.findOne(id);
+  //   if (!user) throw new NotFoundException(`User with id ${id} not found`);
+  //   if (role < uRole) throw new ForbiddenException();
+  //   user.publicRole = role;
+  //   try {
+  //     user.save();
+  //     this.logger.verbose(`User ${uid} chenged ${id}-s role to ${role}`);
+  //   } catch (error) {
+  //     this.logger.warn(error);
+  //     throw new InternalServerErrorException();
+  //   }
+  // }
 }

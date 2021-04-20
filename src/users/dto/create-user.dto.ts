@@ -4,6 +4,14 @@ import { SigninUserDto } from './signin-user.dto';
 
 export class CreateUserDto extends SigninUserDto {
   @IsNotEmpty()
-  @ApiProperty({ example: 'Kerek Elek' })
+  @ApiProperty({ example: 'elek32' })
   name: string;
+
+  @IsNotEmpty()
+  @ApiProperty({ example: 'Kerek Elek' })
+  fullName: string;
+
+  @IsNotEmpty()
+  @ApiProperty({ example: '+36201313123' })
+  phoneNumber: string;
 }

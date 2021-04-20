@@ -1,4 +1,4 @@
-import { Controller, Post, Body, ValidationPipe, Patch, UseGuards, Param } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, Patch, UseGuards, Param, Get } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SigninUserDto } from './dto/signin-user.dto';
@@ -23,14 +23,14 @@ export class UsersController {
     return this.usersService.signinUser(signinUserDto);
   }
 
-  @Patch(':id')
-  @UseGuards(AuthGuard())
-  setRole(
-    @Body('role') role: Role,
-    @Param('id') id: number,
-    @GetUserid() uid: number,
-    @GetRole() uRole: Role,
-  ) {
-    return this.usersService.setRole(role, id, uid, uRole);
-  }
+  // @Patch(':id')
+  // @UseGuards(AuthGuard())
+  // setRole(
+  //   @Body('role') role: Role,
+  //   @Param('id') id: number,
+  //   @GetUserid() uid: number,
+  //   @GetRole() uRole: Role,
+  // ) {
+  //   return this.usersService.setRole(role, id, uid, uRole);
+  // }
 }

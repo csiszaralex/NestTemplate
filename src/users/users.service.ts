@@ -15,8 +15,8 @@ export class UsersService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
-    const { name, email, password } = createUserDto;
-    await this.userRepository.createUser(name, email, password);
+    const { name, email, password, phoneNumber, fullName } = createUserDto;
+    await this.userRepository.createUser(name, email, password, phoneNumber, fullName);
     return await this.signinUser({ email, password });
   }
 
@@ -26,16 +26,17 @@ export class UsersService {
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const payload: JwtPayloadInterface = {
-      email: user.email,
       id: user.id,
-      publicRole: user.publicRole,
       name: user.name,
+      fullName: user.fullName,
+      email: user.email,
+      role: user.role,
     };
     const accessToken = await this.jwtService.sign(payload);
     return { accessToken };
   }
 
-  setRole(role: Role, id: number, uid: number, uRole: Role) {
-    return this.userRepository.setRole(role, id, uid, uRole);
-  }
+  // setRole(role: Role, id: number, uid: number, uRole: Role) {
+  //   return this.userRepository.setRole(role, id, uid, uRole);
+  // }
 }
