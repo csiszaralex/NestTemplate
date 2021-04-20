@@ -1,12 +1,14 @@
-import { Controller, Post, Body, ValidationPipe, Patch, UseGuards, Param, Get } from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe, Get, UseGuards, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SigninUserDto } from './dto/signin-user.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { Role } from './enums/Roles.enum';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUserid } from './decorators/get-userid.decorator';
-import { GetRole } from './decorators/get-role.decorator';
+import { User } from './entities/user.entity';
+import { Roles } from './decorators/roles.decorator';
+import { Role } from './enums/Roles.enum';
+import { RolesGuard } from './guards/roles.guard';
 
 @ApiTags('User')
 @Controller('users')
@@ -17,10 +19,22 @@ export class UsersController {
   createUser(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
     return this.usersService.createUser(createUserDto);
   }
-
   @Post('signin')
   signIn(@Body(ValidationPipe) signinUserDto: SigninUserDto): Promise<{ accessToken: string }> {
     return this.usersService.signinUser(signinUserDto);
+  }
+
+  @Get('whoami')
+  @UseGuards(AuthGuard())
+  whoAmI(@GetUserid() id: number): Promise<User> {
+    return this.usersService.whoAmI(id);
+  }
+  @Get('whoami/:id')
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard())
+  whoAmIById(@Param() id: number): Promise<User> {
+    return this.usersService.whoAmI(id);
   }
 
   // @Patch(':id')

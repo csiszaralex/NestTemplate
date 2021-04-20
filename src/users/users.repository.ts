@@ -52,6 +52,12 @@ export class UserRepository extends Repository<User> {
     return user;
   }
 
+  async getUserById(id: number): Promise<User> {
+    const user = await User.findOne(id);
+    if (!user) throw new NotFoundException();
+    return user;
+  }
+
   // async setRole(role: Role, id: number, uid: number, uRole: Role) {
   //   const user = await User.findOne(id);
   //   if (!user) throw new NotFoundException(`User with id ${id} not found`);
