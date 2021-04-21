@@ -1,4 +1,13 @@
-import { Controller, Post, Body, ValidationPipe, Get, UseGuards, Param } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  ValidationPipe,
+  Get,
+  UseGuards,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { SigninUserDto } from './dto/signin-user.dto';
@@ -35,6 +44,25 @@ export class UsersController {
   @UseGuards(AuthGuard())
   whoAmIById(@Param() id: number): Promise<User> {
     return this.usersService.whoAmI(id);
+  }
+
+  @Patch()
+  @UseGuards(AuthGuard())
+  changeProfile(
+    @GetUserid() id: number,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<{ accessToken: string }> {
+    return this.usersService.changeProfile(id, createUserDto);
+  }
+  @Patch(':id')
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard())
+  changeProfileById(
+    @Param() id: number,
+    @Body() createUserDto: CreateUserDto,
+  ): Promise<{ accessToken: string }> {
+    return this.usersService.changeProfile(id, createUserDto);
   }
 
   // @Patch(':id')

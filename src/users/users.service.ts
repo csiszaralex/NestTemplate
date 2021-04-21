@@ -19,7 +19,6 @@ export class UsersService {
     await this.userRepository.createUser(name, email, password, phoneNumber, fullName);
     return await this.signinUser({ email, password });
   }
-
   async signinUser(signinUserDto: SigninUserDto): Promise<{ accessToken: string }> {
     const { email, password } = signinUserDto;
     const user = await this.userRepository.signinUser(email, password);
@@ -41,6 +40,19 @@ export class UsersService {
     delete user.salt;
     delete user.password;
     return user;
+  }
+
+  async changeProfile(id: number, createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
+    const { name, email, password, phoneNumber, fullName } = createUserDto;
+    const user = await this.userRepository.changeProfile(
+      id,
+      name,
+      email,
+      password,
+      phoneNumber,
+      fullName,
+    );
+    return this.signinUser({ email: user.email, password: user.password });
   }
 
   // setRole(role: Role, id: number, uid: number, uRole: Role) {

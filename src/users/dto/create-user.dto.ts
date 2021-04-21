@@ -11,7 +11,6 @@ export class CreateUserDto extends SigninUserDto {
   @ApiProperty({ example: 'Kerek Elek' })
   fullName: string;
 
-  @IsNotEmpty()
   @ApiProperty({ example: '+36201313123' })
   phoneNumber: string;
 }

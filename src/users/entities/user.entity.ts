@@ -19,7 +19,6 @@ export class User extends BaseEntity {
   email: string;
 
   @Column({ unique: true })
-  @IsNotEmpty()
   phoneNumber: string;
 
   @Column()

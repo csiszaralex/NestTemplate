@@ -30,24 +30,21 @@ export class UserRepository extends Repository<User> {
     } catch (error) {
       if (error.code === 'ER_DUP_ENTRY')
         throw new ConflictException('Email or phonenumber already exists');
-      else {
-        this.logger.warn(error);
-        throw new InternalServerErrorException();
-      }
+      this.logger.warn(error);
+      throw new InternalServerErrorException();
     }
   }
-
   async signinUser(email, password): Promise<User> {
     const user = await this.validateUser(email, password);
     this.logger.verbose(`User ${user.name} has successfully signed in`);
     return user;
   }
-
   async validateUser(email, password): Promise<User> {
     const user = await User.findOne({ email });
     if (!user) throw new NotFoundException(`User with ${email} not found`);
-
-    const passwd = await bcrypt.hash(password, user.salt);
+    const passwd = password.match(/^\$2b\$10\$/)
+      ? password
+      : await bcrypt.hash(password, user.salt);
     if (!(passwd === user.password)) throw new UnauthorizedException('Wrong password');
     return user;
   }
@@ -55,6 +52,32 @@ export class UserRepository extends Repository<User> {
   async getUserById(id: number): Promise<User> {
     const user = await User.findOne(id);
     if (!user) throw new NotFoundException();
+    return user;
+  }
+
+  async changeProfile(
+    id: number,
+    name: string,
+    email: string,
+    password: string,
+    phoneNumber: string,
+    fullName: string,
+  ) {
+    const user = await this.getUserById(id);
+    user.name = name ? name : user.name;
+    user.email = email ? email : user.email;
+    user.password = password ? bcrypt.hashSync(password, user.salt) : user.password;
+    user.phoneNumber = phoneNumber ? phoneNumber : user.phoneNumber;
+    user.fullName = fullName ? fullName : user.fullName;
+    try {
+      await user.save();
+      this.logger.verbose(`User ${name} has successfully changed his profile`);
+    } catch (error) {
+      if (error.code === 'ER_DUP_ENTRY')
+        throw new ConflictException('Email or phonenumber already exists');
+      this.logger.warn(error);
+      throw new InternalServerErrorException();
+    }
     return user;
   }
 
