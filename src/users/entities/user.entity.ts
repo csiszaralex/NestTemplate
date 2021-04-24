@@ -1,4 +1,4 @@
-import { IsNotEmpty, Matches } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('users')
@@ -18,7 +18,7 @@ export class User extends BaseEntity {
   @IsNotEmpty()
   email: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, default: null })
   phoneNumber: string;
 
   @Column()

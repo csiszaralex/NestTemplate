@@ -3,6 +3,7 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import {
   ConflictException,
+  ForbiddenException,
   InternalServerErrorException,
   Logger,
   NotFoundException,
@@ -20,7 +21,7 @@ export class UserRepository extends Repository<User> {
     user.name = name;
     user.salt = salt;
     user.role = 1;
-    user.phoneNumber = phoneNumber;
+    user.phoneNumber = phoneNumber ? phoneNumber : null;
     user.fullName = fullName;
     user.password = await bcrypt.hash(password, salt);
 
@@ -62,6 +63,7 @@ export class UserRepository extends Repository<User> {
     password: string,
     phoneNumber: string,
     fullName: string,
+    role: number,
   ) {
     const user = await this.getUserById(id);
     user.name = name ? name : user.name;
@@ -69,6 +71,8 @@ export class UserRepository extends Repository<User> {
     user.password = password ? bcrypt.hashSync(password, user.salt) : user.password;
     user.phoneNumber = phoneNumber ? phoneNumber : user.phoneNumber;
     user.fullName = fullName ? fullName : user.fullName;
+    if (role && role > user.role) throw new ForbiddenException();
+    user.role = role ? role : user.role;
     try {
       await user.save();
       this.logger.verbose(`User ${name} has successfully changed his profile`);
@@ -80,18 +84,4 @@ export class UserRepository extends Repository<User> {
     }
     return user;
   }
-
-  // async setRole(role: Role, id: number, uid: number, uRole: Role) {
-  //   const user = await User.findOne(id);
-  //   if (!user) throw new NotFoundException(`User with id ${id} not found`);
-  //   if (role < uRole) throw new ForbiddenException();
-  //   user.publicRole = role;
-  //   try {
-  //     user.save();
-  //     this.logger.verbose(`User ${uid} chenged ${id}-s role to ${role}`);
-  //   } catch (error) {
-  //     this.logger.warn(error);
-  //     throw new InternalServerErrorException();
-  //   }
-  // }
 }

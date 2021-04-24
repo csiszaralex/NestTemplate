@@ -7,6 +7,7 @@ import {
   UseGuards,
   Param,
   Patch,
+  Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -18,6 +19,8 @@ import { User } from './entities/user.entity';
 import { Roles } from './decorators/roles.decorator';
 import { Role } from './enums/Roles.enum';
 import { RolesGuard } from './guards/roles.guard';
+import { SignInPayloadInterface } from './interfaces/signin-payload.interface';
+import { EditUserDto } from './dto/edit-user.dto';
 
 @ApiTags('User')
 @Controller('users')
@@ -25,11 +28,11 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('signup')
-  createUser(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
+  createUser(@Body(ValidationPipe) createUserDto: CreateUserDto): Promise<SignInPayloadInterface> {
     return this.usersService.createUser(createUserDto);
   }
   @Post('signin')
-  signIn(@Body(ValidationPipe) signinUserDto: SigninUserDto): Promise<{ accessToken: string }> {
+  signIn(@Body(ValidationPipe) signinUserDto: SigninUserDto): Promise<SignInPayloadInterface> {
     return this.usersService.signinUser(signinUserDto);
   }
 
@@ -50,9 +53,9 @@ export class UsersController {
   @UseGuards(AuthGuard())
   changeProfile(
     @GetUserid() id: number,
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<{ accessToken: string }> {
-    return this.usersService.changeProfile(id, createUserDto);
+    @Body() editUserDto: EditUserDto,
+  ): Promise<SignInPayloadInterface> {
+    return this.usersService.changeProfile(id, editUserDto);
   }
   @Patch(':id')
   @Roles(Role.ADMIN)
@@ -60,19 +63,13 @@ export class UsersController {
   @UseGuards(AuthGuard())
   changeProfileById(
     @Param() id: number,
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<{ accessToken: string }> {
-    return this.usersService.changeProfile(id, createUserDto);
+    @Body() editUserDto: EditUserDto,
+  ): Promise<SignInPayloadInterface> {
+    return this.usersService.changeProfile(id, editUserDto);
   }
 
-  // @Patch(':id')
-  // @UseGuards(AuthGuard())
-  // setRole(
-  //   @Body('role') role: Role,
-  //   @Param('id') id: number,
-  //   @GetUserid() uid: number,
-  //   @GetRole() uRole: Role,
-  // ) {
-  //   return this.usersService.setRole(role, id, uid, uRole);
-  // }
+  @Get()
+  test(@Req() req) {
+    return { token: req.headers.authorization };
+  }
 }

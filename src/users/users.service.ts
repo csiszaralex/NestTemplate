@@ -2,9 +2,11 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
+import { EditUserDto } from './dto/edit-user.dto';
 import { SigninUserDto } from './dto/signin-user.dto';
 import { User } from './entities/user.entity';
 import { JwtPayloadInterface } from './interfaces/jwt-payload.interface';
+import { SignInPayloadInterface } from './interfaces/signin-payload.interface';
 import { UserRepository } from './users.repository';
 
 @Injectable()
@@ -14,12 +16,12 @@ export class UsersService {
     private jwtService: JwtService,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
+  async createUser(createUserDto: CreateUserDto): Promise<SignInPayloadInterface> {
     const { name, email, password, phoneNumber, fullName } = createUserDto;
     await this.userRepository.createUser(name, email, password, phoneNumber, fullName);
     return await this.signinUser({ email, password });
   }
-  async signinUser(signinUserDto: SigninUserDto): Promise<{ accessToken: string }> {
+  async signinUser(signinUserDto: SigninUserDto): Promise<SignInPayloadInterface> {
     const { email, password } = signinUserDto;
     const user = await this.userRepository.signinUser(email, password);
     if (!user) throw new UnauthorizedException('Invalid credentials');
@@ -42,8 +44,8 @@ export class UsersService {
     return user;
   }
 
-  async changeProfile(id: number, createUserDto: CreateUserDto): Promise<{ accessToken: string }> {
-    const { name, email, password, phoneNumber, fullName } = createUserDto;
+  async changeProfile(id: number, editUserDto: EditUserDto): Promise<SignInPayloadInterface> {
+    const { name, email, password, phoneNumber, fullName, role } = editUserDto;
     const user = await this.userRepository.changeProfile(
       id,
       name,
@@ -51,11 +53,8 @@ export class UsersService {
       password,
       phoneNumber,
       fullName,
+      role,
     );
     return this.signinUser({ email: user.email, password: user.password });
   }
-
-  // setRole(role: Role, id: number, uid: number, uRole: Role) {
-  //   return this.userRepository.setRole(role, id, uid, uRole);
-  // }
 }
