@@ -36,6 +36,10 @@ export class UsersService {
     const accessToken = await this.jwtService.sign(payload);
     return { accessToken };
   }
+  async renewUser(id: number): Promise<SignInPayloadInterface> {
+    const user = await this.userRepository.getUserById(id);
+    return this.signinUser({ email: user.email, password: user.password });
+  }
 
   async whoAmI(id: number): Promise<User> {
     const user = await this.userRepository.getUserById(id);

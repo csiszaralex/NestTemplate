@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Req,
+  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -34,6 +35,11 @@ export class UsersController {
   @Post('signin')
   signIn(@Body(ValidationPipe) signinUserDto: SigninUserDto): Promise<SignInPayloadInterface> {
     return this.usersService.signinUser(signinUserDto);
+  }
+  @Put('renew')
+  @UseGuards(AuthGuard())
+  renewUser(@GetUserid() id: number): Promise<SignInPayloadInterface> {
+    return this.usersService.renewUser(id);
   }
 
   @Get('whoami')
