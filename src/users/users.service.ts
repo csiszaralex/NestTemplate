@@ -47,6 +47,9 @@ export class UsersService {
     delete user.password;
     return user;
   }
+  async getUsers(role: number): Promise<User[]> {
+    return this.userRepository.getUsers(role);
+  }
 
   async changeProfile(id: number, editUserDto: EditUserDto): Promise<SignInPayloadInterface> {
     const { name, email, password, phoneNumber, fullName, role } = editUserDto;

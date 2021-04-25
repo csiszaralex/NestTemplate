@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, LessThan, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import {
@@ -55,6 +55,13 @@ export class UserRepository extends Repository<User> {
     if (!user) throw new NotFoundException();
     return user;
   }
+  async getUsers(role: number): Promise<User[]> {
+    const users = await User.find({
+      where: { role: LessThan(role) },
+      select: ['id', 'name', 'email', 'updatedAt', 'createdAt'],
+    });
+    return users;
+  }
 
   async changeProfile(
     id: number,
@@ -71,6 +78,7 @@ export class UserRepository extends Repository<User> {
     user.password = password ? bcrypt.hashSync(password, user.salt) : user.password;
     user.phoneNumber = phoneNumber ? phoneNumber : user.phoneNumber;
     user.fullName = fullName ? fullName : user.fullName;
+    user.updatedAt = new Date();
     if (role && role > user.role) throw new ForbiddenException();
     user.role = role ? role : user.role;
     try {

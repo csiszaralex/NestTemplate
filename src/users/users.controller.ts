@@ -22,6 +22,7 @@ import { Role } from './enums/Roles.enum';
 import { RolesGuard } from './guards/roles.guard';
 import { SignInPayloadInterface } from './interfaces/signin-payload.interface';
 import { EditUserDto } from './dto/edit-user.dto';
+import { GetRole } from './decorators/get-role.decorator';
 
 @ApiTags('User')
 @Controller('users')
@@ -54,6 +55,13 @@ export class UsersController {
   whoAmIById(@Param() id: number): Promise<User> {
     return this.usersService.whoAmI(id);
   }
+  @Get()
+  @Roles(Role.ADMIN)
+  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard())
+  getUsers(@GetRole() role: number): Promise<User[]> {
+    return this.usersService.getUsers(role);
+  }
 
   @Patch()
   @UseGuards(AuthGuard())
@@ -72,10 +80,5 @@ export class UsersController {
     @Body() editUserDto: EditUserDto,
   ): Promise<SignInPayloadInterface> {
     return this.usersService.changeProfile(id, editUserDto);
-  }
-
-  @Get()
-  test(@Req() req) {
-    return { token: req.headers.authorization };
   }
 }

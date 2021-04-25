@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { config } from 'dotenv';
 import { UsersModule } from './users/users.module';
+import { AppController } from './app.controller';
 config();
 @Module({
+  controllers: [AppController],
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
