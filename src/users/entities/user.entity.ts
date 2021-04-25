@@ -36,5 +36,5 @@ export class User extends BaseEntity {
   createdAt: Date;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  updatedAt: Date;
+  signedIn: Date;
 }

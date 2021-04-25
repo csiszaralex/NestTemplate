@@ -7,8 +7,6 @@ import {
   UseGuards,
   Param,
   Patch,
-  Req,
-  Put,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -37,7 +35,7 @@ export class UsersController {
   signIn(@Body(ValidationPipe) signinUserDto: SigninUserDto): Promise<SignInPayloadInterface> {
     return this.usersService.signinUser(signinUserDto);
   }
-  @Put('renew')
+  @Get('renew')
   @UseGuards(AuthGuard())
   renewUser(@GetUserid() id: number): Promise<SignInPayloadInterface> {
     return this.usersService.renewUser(id);

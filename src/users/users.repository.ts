@@ -37,8 +37,16 @@ export class UserRepository extends Repository<User> {
   }
   async signinUser(email, password): Promise<User> {
     const user = await this.validateUser(email, password);
-    this.logger.verbose(`User ${user.name} has successfully signed in`);
-    return user;
+    user.signedIn = new Date();
+
+    try {
+      this.logger.verbose(`User ${user.name} has successfully signed in`);
+      user.save();
+      return user;
+    } catch (err) {
+      this.logger.warn(err);
+      throw new InternalServerErrorException(err);
+    }
   }
   async validateUser(email, password): Promise<User> {
     const user = await User.findOne({ email });
@@ -58,7 +66,7 @@ export class UserRepository extends Repository<User> {
   async getUsers(role: number): Promise<User[]> {
     const users = await User.find({
       where: { role: LessThan(role) },
-      select: ['id', 'name', 'email', 'updatedAt', 'createdAt'],
+      select: ['id', 'name', 'email', 'createdAt', 'signedIn'],
     });
     return users;
   }
@@ -78,7 +86,6 @@ export class UserRepository extends Repository<User> {
     user.password = password ? bcrypt.hashSync(password, user.salt) : user.password;
     user.phoneNumber = phoneNumber ? phoneNumber : user.phoneNumber;
     user.fullName = fullName ? fullName : user.fullName;
-    user.updatedAt = new Date();
     if (role && role > user.role) throw new ForbiddenException();
     user.role = role ? role : user.role;
     try {
