@@ -25,7 +25,7 @@ export class UsersService {
     const { email, password } = signinUserDto;
     const user = await this.userRepository.signinUser(email, password);
     if (!user) throw new UnauthorizedException('Invalid credentials');
-
+    if (user.role < 0) return;
     const payload: JwtPayloadInterface = {
       id: user.id,
       name: user.name,
@@ -51,7 +51,11 @@ export class UsersService {
     return this.userRepository.getUsers(role);
   }
 
-  async changeProfile(id: number, editUserDto: EditUserDto): Promise<SignInPayloadInterface> {
+  async changeProfile(
+    id: number,
+    editUserDto: EditUserDto,
+    myRole?: number,
+  ): Promise<SignInPayloadInterface> {
     const { name, email, password, phoneNumber, fullName, role } = editUserDto;
     const user = await this.userRepository.changeProfile(
       id,
@@ -61,7 +65,12 @@ export class UsersService {
       phoneNumber,
       fullName,
       role,
+      myRole,
     );
-    return this.signinUser({ email: user.email, password: user.password });
+    if (!myRole) return this.signinUser({ email: user.email, password: user.password });
+    return;
+  }
+  async deleteProfile(id: number): Promise<void> {
+    return this.userRepository.deleteProfile(id);
   }
 }

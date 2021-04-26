@@ -29,7 +29,7 @@ export class User extends BaseEntity {
   @IsNotEmpty()
   password: string;
 
-  @Column({ default: 0 })
+  @Column({ default: 1 })
   role: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

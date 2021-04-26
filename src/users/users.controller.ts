@@ -7,6 +7,8 @@ import {
   UseGuards,
   Param,
   Patch,
+  Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -47,14 +49,14 @@ export class UsersController {
     return this.usersService.whoAmI(id);
   }
   @Get('whoami/:id')
-  @Roles(Role.ADMIN)
+  @Roles(Role.MODERATOR)
   @UseGuards(RolesGuard)
   @UseGuards(AuthGuard())
-  whoAmIById(@Param() id: number): Promise<User> {
+  whoAmIById(@Param('id', ParseIntPipe) id: number): Promise<User> {
     return this.usersService.whoAmI(id);
   }
   @Get()
-  @Roles(Role.ADMIN)
+  @Roles(Role.MODERATOR)
   @UseGuards(RolesGuard)
   @UseGuards(AuthGuard())
   getUsers(@GetRole() role: number): Promise<User[]> {
@@ -70,13 +72,30 @@ export class UsersController {
     return this.usersService.changeProfile(id, editUserDto);
   }
   @Patch(':id')
-  @Roles(Role.ADMIN)
+  @Roles(Role.MODERATOR)
   @UseGuards(RolesGuard)
   @UseGuards(AuthGuard())
   changeProfileById(
-    @Param() id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() editUserDto: EditUserDto,
+    @GetRole() myRole: number,
   ): Promise<SignInPayloadInterface> {
-    return this.usersService.changeProfile(id, editUserDto);
+    return this.usersService.changeProfile(id, editUserDto, myRole);
+  }
+
+  @Delete()
+  @UseGuards(AuthGuard())
+  delteProfile(@GetUserid() id: number): Promise<void> {
+    return this.usersService.deleteProfile(id);
+  }
+  @Delete(':id')
+  @Roles(Role.MODERATOR)
+  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard())
+  deleteProfileById(
+    @Param('id', ParseIntPipe) id: number,
+    @GetRole() myRole: number,
+  ): Promise<any> {
+    return this.usersService.changeProfile(id, { role: -1 }, myRole);
   }
 }
