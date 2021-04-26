@@ -90,7 +90,7 @@ export class UserRepository extends Repository<User> {
     user.password = password ? bcrypt.hashSync(password, user.salt) : user.password;
     user.phoneNumber = phoneNumber ? phoneNumber : user.phoneNumber;
     user.fullName = fullName ? fullName : user.fullName;
-    if (role && role > myRole) throw new ForbiddenException();
+    if (role && role > (myRole | user.role)) throw new ForbiddenException();
     user.role = role ? role : user.role;
     try {
       await user.save();
