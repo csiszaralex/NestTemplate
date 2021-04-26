@@ -1,4 +1,4 @@
-import { EntityRepository, LessThan, Repository, MoreThan } from 'typeorm';
+import { EntityRepository, LessThan, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import {
